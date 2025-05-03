@@ -1,5 +1,5 @@
 {
-  "name": "YouTube Video Finder",
+  "name": "Synapse",
   "version": "1.4",
   "description": "Right-click selected text to find related YouTube videos with accurate timestamps using Gemini AI.",
   "manifest_version": 3,
@@ -14,7 +14,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "YouTube Video Finder",
+    "default_title": "Synapse",
     "default_popup": "youtube-viewer.html"
   },
   "content_security_policy": {
