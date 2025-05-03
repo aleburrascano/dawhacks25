@@ -1,3 +1,8 @@
+document.getElementById('openMindMap').addEventListener('click', () => {
+  console.log("hello????")
+  chrome.tabs.create({ url: chrome.runtime.getURL('mindmap.html') });
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   // Get the search query from URL
   const params = new URLSearchParams(location.search);

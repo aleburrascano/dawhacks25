@@ -1,6 +1,6 @@
 // YouTube API key - You'll need to get your own from Google Cloud Console
 // Visit: https://console.cloud.google.com/apis/credentials
-const API_KEY = "AIzaSyDNKn8VOFLO8QSnSDjAM3Y7zr63IZXZC4w";
+const API_KEY = "AIzaSyDOT-kCYzGPcxFI1Qw4_5fxVqea2UD4v-E";
 
 // Function to search for YouTube videos
 async function searchYouTubeVideos(query) {
