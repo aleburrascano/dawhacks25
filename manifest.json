@@ -3,7 +3,7 @@
   "version": "1.2",
   "description": "Right-click selected text to find related YouTube videos with timestamps.",
   "manifest_version": 3,
-  "permissions": ["contextMenus", "scripting", "tabs"],
+  "permissions": ["contextMenus", "scripting", "tabs", "storage", "activeTab"],
   "host_permissions": [
     "<all_urls>",
     "https://*.youtube.com/*",
@@ -13,7 +13,8 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "YouTube Video Finder"
+    "default_title": "YouTube Video Finder",
+    "default_popup": "youtube-viewer.html"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

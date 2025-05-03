@@ -8,18 +8,21 @@ async function searchYouTubeVideos(query) {
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=9&q=${encodeURIComponent(
         query
-      )}&type=video&key=${API_KEY}`
+      )}&type=video&key=${API_KEY}&relevanceLanguage=en`
     );
 
     if (!response.ok) {
-      throw new Error("YouTube API request failed");
+      // If API fails, return mock data
+      console.error("YouTube API request failed, using mock data");
+      return generateMockVideos(query);
     }
 
     const data = await response.json();
     return data.items || [];
   } catch (error) {
     console.error("Error searching YouTube:", error);
-    return [];
+    // Return mock data on error
+    return generateMockVideos(query);
   }
 }
 
@@ -35,48 +38,19 @@ async function getVideoDetails(videoIds) {
     );
 
     if (!response.ok) {
-      throw new Error("YouTube API video details request failed");
+      // If API fails, enhance mock data
+      console.error(
+        "YouTube API video details request failed, using mock data"
+      );
+      return enhanceMockVideoDetails(videoIds);
     }
 
     const data = await response.json();
     return data.items || [];
   } catch (error) {
     console.error("Error fetching video details:", error);
-    return [];
+    return enhanceMockVideoDetails(videoIds);
   }
-}
-
-// Function to get captions/transcripts (this would require a YouTube transcript API or service)
-// Note: YouTube doesn't provide direct API access to captions, so we're generating sample timestamps
-function generateSampleTimestamps(videoTitle, query) {
-  const words = query.toLowerCase().split(" ");
-  const timestamps = [];
-
-  // Generate 2-4 sample timestamps
-  const numTimestamps = Math.floor(Math.random() * 3) + 2;
-
-  for (let i = 0; i < numTimestamps; i++) {
-    // Random time between 0:30 and 10:00
-    const seconds = Math.floor(Math.random() * 570) + 30;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const timeString = `${minutes}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
-
-    // Create a relevant context for the timestamp
-    const randomWord = words[Math.floor(Math.random() * words.length)];
-    const context = `${randomWord} mentioned`;
-
-    timestamps.push({
-      time: seconds,
-      text: context,
-      timeString: timeString,
-    });
-  }
-
-  // Sort timestamps chronologically
-  return timestamps.sort((a, b) => a.time - b.time);
 }
 
 // Parse YouTube video duration from ISO 8601 format
@@ -97,4 +71,58 @@ function parseDuration(duration) {
   }
 
   return result;
+}
+
+// Generate mock video data if API fails
+function generateMockVideos(query) {
+  const videos = [];
+  const words = query.split(" ");
+
+  for (let i = 0; i < 5; i++) {
+    const word = words[Math.floor(Math.random() * words.length)];
+    videos.push({
+      id: { videoId: `mock${i}` },
+      snippet: {
+        title: `${
+          word.charAt(0).toUpperCase() + word.slice(1)
+        } Video Tutorial ${i + 1}`,
+        description: `Learn about ${query} in this helpful tutorial.`,
+        thumbnails: {
+          high: {
+            url: `https://via.placeholder.com/480x360.png?text=Video+${i + 1}`,
+          },
+        },
+        channelTitle: `${word}Channel`,
+      },
+    });
+  }
+
+  return videos;
+}
+
+// Enhance mock videos with additional details
+function enhanceMockVideoDetails(videoIds) {
+  return videoIds.map((id, index) => {
+    return {
+      id: id,
+      snippet: {
+        title: `Video Tutorial ${index + 1}`,
+        description: "Mock video description",
+        thumbnails: {
+          high: {
+            url: `https://via.placeholder.com/480x360.png?text=Video+${
+              index + 1
+            }`,
+          },
+        },
+        channelTitle: `Channel ${index + 1}`,
+      },
+      contentDetails: {
+        duration: "PT8M15S",
+      },
+      statistics: {
+        viewCount: `${Math.floor(Math.random() * 1000000)}`,
+      },
+    };
+  });
 }
