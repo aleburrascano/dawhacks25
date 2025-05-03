@@ -61225,6 +61225,43 @@ Model data should not have any references to a Diagram or any part of a diagram,
   "object" === typeof module.exports &&
   (module.exports = "undefined" !== typeof global ? global.go : self.go);
 
+
+const apiKey = "AIzaSyAYvLNP28haMA39azfgXF1VZr2w-1yjr6Q";
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`; 
+
+  async function getMap(url, requestData) {
+    // Create the properly formatted request body
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: requestData  // Just use the string directly here
+            }
+          ]
+        }
+      ]
+    };
+  
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),  // Send the formatted body
+    });
+  
+    const data = await response.json();
+    
+    // Simple error handling
+    if (data.error) {
+      console.error("API Error:", data.error);
+      throw new Error(data.error.message || "API Error");
+    }
+    
+    return data.candidates[0].content.parts[0].text;
+  }
+
   async function init() {
     const $ = go.GraphObject.make;
   
@@ -61280,10 +61317,41 @@ Model data should not have any references to a Diagram or any part of a diagram,
     );
   
     // Get the nodeDataArray based on the selected text
-    const nodeDataArray = await getNodeDataArray();
+    let selectedText = await new Promise((resolve) => {
+      chrome.storage.local.get("lastSearchQuery", (result) => {
+        resolve(result.lastSearchQuery || "");
+      });
+    });
+    const prompt = `
+    Generate a mind map JSON array. Each element should be an object with:
+    - "key": ex linear algebra
+    - "parent": (optional) the key of its parent node
+    - "color": a hex color
+
+    Example format:
+    [
+      { key: "Main Idea", color: "#fef6d3" },
+      { key: "Branch 1", parent: "Main Idea", color: "#d3f4fe" },
+      { key: "Branch 2", parent: "Main Idea", color: "#ffd3e0" },
+      { key: "Branch 3", parent: "Main Idea", color: "#e0ffd3" },
+      { key: "Sub Idea", parent: "Branch 2", color: "#e3d3fe" }
+    ]
+
+    Return only the array in valid JSON format. The map must be around the node element ${selectedText}. That is the node element and then the other elements are about that topic. IMPORTANT: Return only valid JSON without any markdown formatting, code blocks, or backticks.`;
+    let nodeDataArray = '';
+  try {
+      const map = await getMap(url, prompt);
+      console.log(`plz bro ${map}`);
+      nodeDataArray = JSON.parse(map);
+
+    } catch (error) {
+      console.error("Error calling getMap:", error);
+    }
     myDiagram.model = new go.TreeModel(nodeDataArray);
   }
   
+
+
   // Async function to get last search query and generate nodeDataArray
   async function getNodeDataArray() {
     let selectedText = "";

@@ -1,10 +1,16 @@
-document.getElementById('openMindMap').addEventListener('click', () => {
-  console.log("hello????")
-  chrome.tabs.create({ url: chrome.runtime.getURL('mindmap.html') });
-});
+
 
 document.addEventListener("DOMContentLoaded", () => {
   setupTimestampHandlers();
+
+  const openMindMapButton = document.getElementById('openMindMap');
+  if (openMindMapButton) {
+    openMindMapButton.addEventListener('click', async () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('mindmap.html') });
+    });
+  } else {
+    console.error("Button with ID 'openMindMap' not found in the document");
+  }
 
   // Get the search query from URL
   const params = new URLSearchParams(location.search);
@@ -91,15 +97,21 @@ async function processVideoBatch(videos, query, container) {
     try {
       // Only call Gemini API if we have a transcript and the query isn't too short
       if (transcript && transcript.length > 0 && query.length > 3) {
+        console.log("Getting Gemini timestamp for video:", video.id);
         const timeString = await findRelevantTimestamp(transcript, query);
+        console.log("Gemini returned timestamp:", timeString);
+        
         if (timeString && timeString !== "00:00") {
           const seconds = timeToSeconds(timeString);
+          
+          // Get a dynamic description for this timestamp from Gemini
+          const description = await getTimestampDescription(transcript, timeString, query);
           
           // Create a special highlighted timestamp from Gemini
           geminiTimestamp = {
             time: seconds,
             timeString: timeString,
-            text: `🔍 AI-identified most relevant point for "${query}"`,
+            text: `🔍 ${description}`,
             relevance: 5, // Maximum relevance
             isGemini: true
           };
@@ -126,9 +138,13 @@ function displayVideoCard(video, query, timestamps, container) {
   const videoElement = document.createElement("div");
   videoElement.className = "video-card";
 
-  const thumbnailUrl =
-    video.snippet?.thumbnails?.high?.url ||
-    `https://via.placeholder.com/480x360.png?text=Video`;
+  // Fix for thumbnail URLs - ensure they're properly encoded or use a fallback
+  let thumbnailUrl = video.snippet?.thumbnails?.high?.url || video.snippet?.thumbnails?.medium?.url || video.snippet?.thumbnails?.default?.url;
+  
+  // If thumbnail URL is missing or malformed, use a placeholder
+  if (!thumbnailUrl || thumbnailUrl.includes("text=")) {
+    thumbnailUrl = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`;
+  }
 
   const sortedTimestamps = [...timestamps].sort(
     (a, b) => b.relevance - a.relevance
@@ -136,7 +152,7 @@ function displayVideoCard(video, query, timestamps, container) {
 
   videoElement.innerHTML = `
       <div class="video-thumbnail">
-        <img src="${thumbnailUrl}" alt="${video.snippet.title || "Video"}">
+        <img src="${thumbnailUrl}" alt="${video.snippet.title || "Video"}" onerror="this.src='https://via.placeholder.com/480x360.png?text=No+Thumbnail'">
       </div>
       <div class="video-info">
         <h3 class="video-title">${video.snippet.title || "Video Title"}</h3>
