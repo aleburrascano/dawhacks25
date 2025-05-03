@@ -143,6 +143,12 @@
         margin-bottom: 10px;
       }
 
+      .video-details {
+        font-size: 13px;
+        color: #606060;
+        margin-bottom: 10px;
+      }
+
       .video-timestamps {
         font-size: 13px;
         color: #606060;
@@ -150,41 +156,39 @@
       }
 
       .timestamp {
-        display: inline-block;
-        background-color: #f0f0f0;
-        padding: 4px 8px;
-        border-radius: 12px;
-        margin-right: 5px;
-        margin-bottom: 5px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
+        display: block;
+        color: #065fd4;
+        text-decoration: none;
+        padding: 6px 8px;
+        margin-bottom: 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
       }
 
       .timestamp:hover {
-        background-color: #e0e0e0;
+        background-color: #def0ff;
+        text-decoration: underline;
       }
 
       .timestamp.actual {
         background-color: #e6f4ea;
-        border: 1px solid #34a853;
+        border-left: 3px solid #34a853;
       }
 
       .timestamp.generated {
-        background-color: #f0f0f0;
-        border: 1px solid #dadce0;
+        background-color: #f8f9fa;
+        border-left: 3px solid #9aa0a6;
       }
 
       .no-timestamps {
-        display: inline-block;
-        font-style: italic;
         color: #909090;
+        font-style: italic;
       }
 
-      .transcript-loading {
-        font-style: italic;
-        color: #909090;
-        font-size: 12px;
-        margin-top: 5px;
+      .timestamps-container {
+        max-height: 150px;
+        overflow-y: auto;
+        margin-top: 8px;
       }
 
       .watch-button {
