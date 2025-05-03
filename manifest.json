@@ -1,13 +1,14 @@
 {
   "name": "YouTube Video Finder",
-  "version": "1.2",
-  "description": "Right-click selected text to find related YouTube videos with timestamps.",
+  "version": "1.4",
+  "description": "Right-click selected text to find related YouTube videos with accurate timestamps using Gemini AI.",
   "manifest_version": 3,
   "permissions": ["contextMenus", "scripting", "tabs", "storage", "activeTab"],
   "host_permissions": [
     "<all_urls>",
     "https://*.youtube.com/*",
-    "https://*.googleapis.com/*"
+    "https://*.googleapis.com/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
   "background": {
     "service_worker": "background.js"
