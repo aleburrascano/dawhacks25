@@ -1,0 +1,18 @@
+#openMindMap {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    z-index: 1000;
+}
+
+#openMindMap:hover {
+    background-color: #45a049;
+} 
