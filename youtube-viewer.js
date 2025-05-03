@@ -77,8 +77,39 @@ async function loadVideos(query) {
 async function processVideoBatch(videos, query, container) {
   for (const video of videos) {
     const transcript = await fetchTranscript(video.id);
+    
+    // First get regular timestamps
     const timestamps = findMatchingTimestamps(transcript, query);
-    displayVideoCard(video, query, timestamps, container);
+    
+    // Then get Gemini's opinion on the most relevant timestamp
+    let geminiTimestamp = null;
+    try {
+      // Only call Gemini API if we have a transcript and the query isn't too short
+      if (transcript && transcript.length > 0 && query.length > 3) {
+        const timeString = await findRelevantTimestamp(transcript, query);
+        if (timeString && timeString !== "00:00") {
+          const seconds = timeToSeconds(timeString);
+          
+          // Create a special highlighted timestamp from Gemini
+          geminiTimestamp = {
+            time: seconds,
+            timeString: timeString,
+            text: `🔍 AI-identified most relevant point for "${query}"`,
+            relevance: 5, // Maximum relevance
+            isGemini: true
+          };
+        }
+      }
+    } catch (error) {
+      console.error("Error getting Gemini timestamp:", error);
+    }
+    
+    // Add the Gemini timestamp if we got one
+    const allTimestamps = geminiTimestamp 
+      ? [geminiTimestamp, ...timestamps] 
+      : timestamps;
+    
+    displayVideoCard(video, query, allTimestamps, container);
   }
 }
 
@@ -123,7 +154,7 @@ function displayVideoCard(video, query, timestamps, container) {
                     .map(
                       (ts) => `
                   <a href="#" class="timestamp ${
-                    ts.relevance >= 3 ? "actual" : "generated"
+                    ts.isGemini ? "gemini" : ts.relevance >= 3 ? "actual" : "generated"
                   }" 
                       data-video-id="${video.id}" 
                       data-timestamp="${ts.time}">
