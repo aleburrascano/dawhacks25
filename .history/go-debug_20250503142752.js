@@ -88,19 +88,20 @@ Model data should not have any references to a Diagram or any part of a diagram,
             font: "bold 14px sans-serif", 
             stroke: "#333",
             click: function(e, obj) {  // Add a click event listener
-              const textBlock = obj;
-              const selectedText = textBlock.text;
-  
-              // Save the selected text for later use
-              chrome.storage.local.set({ lastSearchQuery: selectedText });
-  
-              // Set the popup URL with the query parameter
-              chrome.action.setPopup({
-                popup: `youtube-viewer.html?query=${encodeURIComponent(selectedText)}`,
-              });
-  
-              // Open the popup
-              chrome.action.openPopup();
+
+            const textBlock = obj;
+            const selectedText = textBlock.text;
+
+            // Save the selected text for later use
+            chrome.storage.local.set({ lastSearchQuery: selectedText });
+
+            // Set the popup URL with the query parameter
+            chrome.action.setPopup({
+              popup: `youtube-viewer.html?query=${encodeURIComponent(selectedText)}`,
+            });
+
+            // Open the popup
+            chrome.action.openPopup();
             }
           },
           new go.Binding("text", "key")
@@ -114,79 +115,16 @@ Model data should not have any references to a Diagram or any part of a diagram,
         $(go.Shape, { strokeWidth: 2, stroke: "#888" })
       );
   
-    // Get the nodeDataArray based on the selected text
-    const nodeDataArray = getNodeDataArray();
+    // Define the data for the nodes
+    const nodeDataArray = [
+      { key: "Main Idea", color: "#fef6d3" },
+      { key: "Branch 1", parent: "Main Idea", color: "#d3f4fe" },
+      { key: "Branch 2", parent: "Main Idea", color: "#ffd3e0" },
+      { key: "Branch 3", parent: "Main Idea", color: "#e0ffd3" },
+      { key: "Sub Idea", parent: "Branch 2", color: "#e3d3fe" },
+    ];
   
     myDiagram.model = new go.TreeModel(nodeDataArray);
-  }
-  
-  // Function to generate nodeDataArray based on selectedText
-  function getNodeDataArray() {
-    // Try to get the last search query from chrome storage
-    let selectedText = "";
-    try {
-      chrome.storage.local.get("lastSearchQuery", function(result) {
-        if (result.lastSearchQuery) {
-          selectedText = result.lastSearchQuery.toLowerCase();
-        }
-      });
-    } catch (e) {
-      console.error("Error accessing chrome storage:", e);
-    }
-    
-    // Default to empty string if there's an issue
-    selectedText = selectedText || "";
-    
-    // Check the selectedText and return appropriate nodeDataArray
-    if (selectedText.includes("linear algebra")) {
-      return [
-        { key: "Linear Algebra", color: "#fef6d3" },
-        { key: "Matrices", parent: "Linear Algebra", color: "#d3f4fe" },
-        { key: "Determinants", parent: "Linear Algebra", color: "#ffd3e0" },
-        { key: "Eigenvalues", parent: "Linear Algebra", color: "#e0ffd3" },
-        { key: "Vector Spaces", parent: "Linear Algebra", color: "#e3d3fe" },
-        { key: "Matrix Operations", parent: "Matrices", color: "#ffe0d3" },
-        { key: "Rank & Nullity", parent: "Matrices", color: "#d3ffe0" },
-        { key: "Linear Transformations", parent: "Vector Spaces", color: "#d3e0ff" },
-        { key: "Basis & Dimension", parent: "Vector Spaces", color: "#ffd3ff" }
-      ];
-    } 
-    else if (selectedText.includes("coordinates")) {
-      return [
-        { key: "Coordinate Systems", color: "#fef6d3" },
-        { key: "Cartesian", parent: "Coordinate Systems", color: "#d3f4fe" },
-        { key: "Polar", parent: "Coordinate Systems", color: "#ffd3e0" },
-        { key: "Spherical", parent: "Coordinate Systems", color: "#e0ffd3" },
-        { key: "Cylindrical", parent: "Coordinate Systems", color: "#e3d3fe" },
-        { key: "2D Plotting", parent: "Cartesian", color: "#ffe0d3" },
-        { key: "3D Plotting", parent: "Cartesian", color: "#d3ffe0" },
-        { key: "Angles & Distance", parent: "Polar", color: "#d3e0ff" },
-        { key: "Geographic Coordinates", parent: "Coordinate Systems", color: "#ffd3ff" }
-      ];
-    }
-    else if (selectedText.includes("vector")) {
-      return [
-        { key: "Vectors", color: "#fef6d3" },
-        { key: "Vector Operations", parent: "Vectors", color: "#d3f4fe" },
-        { key: "Dot Product", parent: "Vector Operations", color: "#ffd3e0" },
-        { key: "Cross Product", parent: "Vector Operations", color: "#e0ffd3" },
-        { key: "Unit Vectors", parent: "Vectors", color: "#e3d3fe" },
-        { key: "Vector Fields", parent: "Vectors", color: "#ffe0d3" },
-        { key: "Direction & Magnitude", parent: "Vectors", color: "#d3ffe0" },
-        { key: "Vector Calculus", parent: "Vectors", color: "#d3e0ff" },
-        { key: "Scalar Multiplication", parent: "Vector Operations", color: "#ffd3ff" }
-      ];
-    }
-    else {
-      // Default mind map if no match
-      return [
-        { key: "Main Idea", color: "#fef6d3" },
-        { key: "Branch 1", parent: "Main Idea", color: "#d3f4fe" },
-        { key: "Branch 2", parent: "Main Idea", color: "#ffd3e0" },
-        { key: "Branch 3", parent: "Main Idea", color: "#e0ffd3" },
-        { key: "Sub Idea", parent: "Branch 2", color: "#e3d3fe" },
-      ];
-    }
   }
   
   window.addEventListener('DOMContentLoaded', init);
